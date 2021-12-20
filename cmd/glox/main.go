@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	errorReporter := interpreter.NewErrorReporter()
-	glox := interpreter.NewInterpreter(errorReporter)
+	errorReporter := interpreter.NewErrorReporter(os.Stdout)
+	glox := interpreter.NewInterpreter(os.Stdin, os.Stdout, errorReporter)
 	glox.Start(os.Args[1:])
 }

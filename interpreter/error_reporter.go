@@ -1,11 +1,18 @@
 package interpreter
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
-type ErrorReporter struct{}
+type ErrorReporter struct {
+	writer io.Writer
+}
 
-func NewErrorReporter() *ErrorReporter {
-	return &ErrorReporter{}
+func NewErrorReporter(w io.Writer) *ErrorReporter {
+	return &ErrorReporter{
+		writer: w,
+	}
 }
 
 func (er ErrorReporter) Process(line int, message string) {
@@ -13,5 +20,5 @@ func (er ErrorReporter) Process(line int, message string) {
 }
 
 func (er ErrorReporter) report(line int, where string, message string) {
-	fmt.Printf("[line %d] Error %s: %s\n", line, where, message)
+	fmt.Fprintf(er.writer, "[line %d] Error %s: %s\n", line, where, message)
 }

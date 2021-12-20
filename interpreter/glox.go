@@ -10,19 +10,23 @@ import (
 
 type Interpreter struct {
 	hadError      bool
+	reader        io.Reader
+	writer        io.Writer
 	errorReporter glox.ErrorReporter
 }
 
-func NewInterpreter(er glox.ErrorReporter) *Interpreter {
+func NewInterpreter(r io.Reader, w io.Writer, er glox.ErrorReporter) *Interpreter {
 	return &Interpreter{
 		hadError:      false,
+		reader:        r,
+		writer:        w,
 		errorReporter: er,
 	}
 }
 
-func (i Interpreter) Start(args []string) {
+func (i *Interpreter) Start(args []string) {
 	if len(args) > 1 {
-		fmt.Println("Usage: glox [script]")
+		fmt.Fprintln(i.writer, "Usage: glox [script]")
 		os.Exit(64)
 	}
 
@@ -36,7 +40,7 @@ func (i Interpreter) Start(args []string) {
 	}
 }
 
-func (i Interpreter) runFile(path string) error {
+func (i *Interpreter) runFile(path string) error {
 	source, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -44,10 +48,10 @@ func (i Interpreter) runFile(path string) error {
 	return i.run(string(source))
 }
 
-func (i Interpreter) runPrompt() error {
-	reader := bufio.NewReader(os.Stdin)
+func (i *Interpreter) runPrompt() error {
+	reader := bufio.NewReader(i.reader)
 	for {
-		fmt.Print("> ")
+		fmt.Fprint(i.writer, "> ")
 		line, err := reader.ReadString('\n')
 		if err == io.EOF {
 			break
@@ -64,6 +68,11 @@ func (i Interpreter) runPrompt() error {
 	return nil
 }
 
-func (i Interpreter) run(source string) error {
+func (i *Interpreter) run(source string) error {
+	scanner := NewScanner(source, i.errorReporter)
+	tokens := scanner.ScanTokens()
+	for _, token := range tokens {
+		fmt.Fprintln(i.writer, token)
+	}
 	return nil
 }
