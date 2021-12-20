@@ -9,7 +9,6 @@ import (
 )
 
 type Interpreter struct {
-	hadError      bool
 	reader        io.Reader
 	writer        io.Writer
 	errorReporter glox.ErrorReporter
