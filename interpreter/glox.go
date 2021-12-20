@@ -17,7 +17,6 @@ type Interpreter struct {
 
 func NewInterpreter(r io.Reader, w io.Writer, er glox.ErrorReporter) *Interpreter {
 	return &Interpreter{
-		hadError:      false,
 		reader:        r,
 		writer:        w,
 		errorReporter: er,
@@ -32,7 +31,7 @@ func (i *Interpreter) Start(args []string) {
 
 	if len(args) == 1 {
 		i.runFile(args[0])
-		if i.hadError {
+		if i.errorReporter.HadError() {
 			os.Exit(65)
 		}
 	} else {
@@ -63,8 +62,8 @@ func (i *Interpreter) runPrompt() error {
 		if err != nil {
 			return err
 		}
+		i.errorReporter.Reset()
 	}
-	i.hadError = false
 	return nil
 }
 
